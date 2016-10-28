@@ -36,7 +36,7 @@ k = 0
 
 # Iterate through each line in the original CSV
 for row in ebsReader:
-    k = ebsReader.line_num
+	k = ebsReader.line_num
 
 	# Add Key Field
 	if ebsReader.line_num == 1:
@@ -44,32 +44,36 @@ for row in ebsReader:
 	else:
 		row.insert(0, ebsReader.line_num - 1)
 
-    # Strip Time stamp from OrderDate field (row[14])
-    try:
-        row[14]=row[14].split()[0]
-    except IndexError:
-        continue
+	# Strip Time stamp from OrderDate field (row[14])
+	try:
+		row[14]=row[14].split()[0]
+	except IndexError:
+		continue
 
-    # NA replacement
-    for i in range(len(row)):
-        if row[i] == '':
+	# NA replacement
+	for i in range(len(row)):
+		if row[i] == '':
 			row[i] = 'NA'
-		elif row[i].startswith('UNK'):
+		elif row[i] == 'N/A':
 			row[i] = 'NA'
-		elif row[i].startswith('XXX'):
-            row[i] = 'NA'
-        elif row[i].endswith('XXX'):
-            row[i] = 'NA'
+		elif row[i] == 'UNK':
+			row[i] = 'NA'
+		elif row[i] == 'UNKNOWN':
+			row[i] = 'NA'
+		elif row[i] == 'XXX':
+			row[i] = 'NA'
+		elif row[i] == 'XXXX':
+			row[i] = 'NA'
 
 	# Writes row to output if model code isn't null
 #	if row[6] == 'NA':     # test ModelCode (row[6]) for NA values
 #		continue
 #	else:
-    outputWriter.writerow(row)
-    j = j + 1
+	outputWriter.writerow(row)
+	j = j + 1
 #end of first for loop
 
-mess='Complete: '+str(100*j/k)+'%\nJ= '+str(j)+'\nK= '+str(k)+' /3,003,714'
+mess='Complete: '+str(100*j/k)+'%\nJ= '+str(j)+'\nK= '+str(k)+' /3,003,715'
 # --- Close Files -------------------------------------------------------------
 ebsFile.close()
 outputFile.close()
