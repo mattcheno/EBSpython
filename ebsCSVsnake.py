@@ -64,13 +64,21 @@ for row in ebsReader:
 			row[i] = 'NA'
 		elif row[i] == 'XXXX':
 			row[i] = 'NA'
+		elif row[i] == 'XXXXX':
+			row[i] = 'NA'
+		elif row[i] == 'XXXXXXXXX':
+			row[i] = 'NA'
+		elif row[i] == 'XXXXXXXXXXX':
+			row[i] = 'NA'
 
 	# Writes row to output if model code isn't null
-#	if row[6] == 'NA':     # test ModelCode (row[6]) for NA values
-#		continue
-#	else:
-	outputWriter.writerow(row)
-	j = j + 1
+	if row[6] == 'NA':     # ModelCode (row[6]) for NA values
+		continue
+	elif row[5].upper() == 'CAS':     # Mfg (row[5]) for Cascade
+		continue
+	else:
+		outputWriter.writerow(row)
+		j = j + 1
 #end of first for loop
 
 mess='Complete: '+str(100*j/k)+'%\nJ= '+str(j)+'\nK= '+str(k)+' /3,003,715'
