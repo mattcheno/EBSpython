@@ -18,8 +18,7 @@
 # 3. Close Files
 
 # --- Declarations ------------------------------------------------------------
-import csv
-import ctypes
+import csv, ctypes, sys, os #, math, random #commented modules not needed
 ebsFile = open('ebsCSVData.csv')
 ebsReader = csv.reader(ebsFile)
 archiveFile = open('archive.csv', 'w', newline='')
