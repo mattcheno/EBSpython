@@ -1,0 +1,27 @@
+ebsCSVsnake Pseudo-Code
+
+Open Raw CSV file
+Open/Create Output file
+Open/Create ExceptionReport file
+Iterate through each row of the Raw CSV;
+	Add in a Key index field
+	Strip the Time-stamp from the "OrderDate" Field
+	Iterate through each field in the row;
+		Replace empty and "unknown" values with a stand-in for the NULL value (Would this be best accomplished with RegEx?)
+	IF ModelCode field is NA value;
+		Append explanation-code to end of row (~.insert function?? .append??)
+		Write row to ExceptionReport file
+		jump to next row
+	IF Mfg field is "CAS";
+		Append explanation-code to end of row (~.insert function?? .append??)
+		Write row to ExceptionReport file
+		jump to next row
+	((((more quick filters))))
+	Compare Mfg field value to Mfg Key file, update value
+	IF Mfg is not found in Key File;
+		Append explanation-code to end of row (~.insert function?? .append??)
+		Write row to ExceptionReport file
+		jump to next row
+	Write (corrected/scrubbed) row to output file
+Close files
+return a message box with some statistics in it

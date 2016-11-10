@@ -25,7 +25,7 @@ archiveFile = open('archive.csv', 'w', newline='')
 archiveWriter = csv.writer(archiveFile)
 outputFile = open('output.csv', 'w', newline='')
 outputWriter = csv.writer(outputFile)
-def mBox(title, text, style):
+def mBox(title, text, style): # Message Box Function
     ctypes.windll.user32.MessageBoxW(0, text, title, style)
 j = 0
 k = 0
