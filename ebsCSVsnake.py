@@ -18,17 +18,18 @@
 # 3. Close Files
 
 # --- Declarations ------------------------------------------------------------
-import csv, ctypes, sys, os #, math, random #commented modules not needed
+import csv, ctypes, sys, os, re #, math, random #commented modules not needed
 ebsFile = open('ebsCSVData.csv')
 ebsReader = csv.reader(ebsFile)
-archiveFile = open('archive.csv', 'w', newline='')
-archiveWriter = csv.writer(archiveFile)
+exFile = open('exceptions.csv', 'w', newline='')
+exWriter = csv.writer(exFile)
 outputFile = open('output.csv', 'w', newline='')
 outputWriter = csv.writer(outputFile)
 def mBox(title, text, style): # Message Box Function
     ctypes.windll.user32.MessageBoxW(0, text, title, style)
 j = 0
 k = 0
+nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 
 
 # --- Logic -------------------------------------------------------------------
@@ -40,6 +41,8 @@ for row in ebsReader:
 	# Add Key Field
 	if ebsReader.line_num == 1:
 		row.insert(0, 'Key')
+		row.append('NOTES')
+		exWriter.writerow(row)
 	else:
 		row.insert(0, ebsReader.line_num - 1)
 
@@ -51,40 +54,25 @@ for row in ebsReader:
 
 	# NA replacement
 	for i in range(len(row)):
-		if row[i] == '':
-			row[i] = 'NA'
-		elif row[i] == 'N/A':
-			row[i] = 'NA'
-		elif row[i] == 'UNK':
-			row[i] = 'NA'
-		elif row[i] == 'UNKNOWN':
-			row[i] = 'NA'
-		elif row[i] == 'XXX':
-			row[i] = 'NA'
-		elif row[i] == 'XXXX':
-			row[i] = 'NA'
-		elif row[i] == 'XXXXX':
-			row[i] = 'NA'
-		elif row[i] == 'XXXXXXXXX':
-			row[i] = 'NA'
-		elif row[i] == 'XXXXXXXXXXX':
-			row[i] = 'NA'
+		if row[i] == '': row[i] = 'NA'
+		row[i] = nullRgX.sub('NA', str(row[i]))
 
 	# Writes row to output if model code isn't null
 	if row[6] == 'NA':     # ModelCode (row[6]) for NA values
-		continue
-	elif row[5].upper() == 'CAS':     # Mfg (row[5]) for Cascade
+		row.append('ModelCode contains NA value')
+		exWriter.writerow(row)
 		continue
 	else:
 		outputWriter.writerow(row)
 		j = j + 1
+	
 #end of first for loop
 
 mess='Complete: '+str(100*j/k)+'%\nJ= '+str(j)+'\nK= '+str(k)+' /3,003,715'
 # --- Close Files -------------------------------------------------------------
 ebsFile.close()
 outputFile.close()
-archiveFile.close()
+exFile.close()
 mBox('DONE',mess, 1)
 
 # === FOOTNOTES ===============================================================

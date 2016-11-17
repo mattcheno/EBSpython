@@ -12,13 +12,13 @@ Iterate through each row of the Raw CSV;
 		Append explanation-code to end of row (~.insert function?? .append??)
 		Write row to ExceptionReport file
 		jump to next row
-	IF Mfg field is "CAS";
+	KEYFILE comparison - Mfg field value to Manufacturer file = replace Mfg field value
+	IF Mfg is not found in Key File;
 		Append explanation-code to end of row (~.insert function?? .append??)
 		Write row to ExceptionReport file
 		jump to next row
-	((((more quick filters))))
-	Compare Mfg field value to Mfg Key file, update value
-	IF Mfg is not found in Key File;
+	KEYFILE comparison - Mfg and ModelCode to MakeModel file = replace UnitType field value
+	IF UnitType is not Class 1-8;
 		Append explanation-code to end of row (~.insert function?? .append??)
 		Write row to ExceptionReport file
 		jump to next row
