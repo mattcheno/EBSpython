@@ -48,8 +48,10 @@ for row in ebsReader:
 	# Add Key Field
 	if ebsReader.line_num == 1:
 		row.insert(0, 'Key')
+		outputWriter.writerow(row)
 		row.append('NOTES')
 		exWriter.writerow(row)
+		continue
 	else:
 		row.insert(0, ebsReader.line_num - 1)
 
@@ -60,7 +62,7 @@ for row in ebsReader:
 		continue
 	
 	# Dictionary look up for Manf Code (row[5])
-	newManf = manKeyDict.get(row[5], 'NA')
+	newManf = manKeyDict.get(row[5], 'Boobs')
 	
 	# NA replacement
 	for i in range(len(row)):
