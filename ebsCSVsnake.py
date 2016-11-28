@@ -19,7 +19,8 @@
 
 # --- Declarations ------------------------------------------------------------
 import csv, ctypes, sys, os, re #, math, random #commented modules not needed
-ebsFile = open('ebsCSVData.csv')     # Input file
+#ebsFile = open('ebsCSVData.csv')     # Input file
+ebsFile = open('sample.csv')
 ebsReader = csv.reader(ebsFile)
 exFile = open('exceptions.csv', 'w', newline='')     # exceptions file
 exWriter = csv.writer(exFile)
@@ -28,6 +29,9 @@ outputWriter = csv.writer(outputFile)
 manfKeyFile = open('Key_ManfCodes.csv')     # Key File to fix Manufacturers
 manfKeyReader = csv.reader(manfKeyFile)
 manKeyDict = {}
+mamoKeyFile = open('Key_MakeModels.csv')     #Key File for Makes and Models
+mamoKeyReader = csv.reader(mamoKeyFile)
+mamoKeyDict = {}
 def mBox(title, text, style): # Message Box Function
     ctypes.windll.user32.MessageBoxW(0, text, title, style)
 j = 0
@@ -39,7 +43,16 @@ nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 
 # Create Manufacturers Key Dictionary
 for row in manfKeyReader:
-	manKeyDict[row[0]] = row[1]
+	if mamoKeyReader.line_num == 1:
+		continue
+	else:
+		manKeyDict[row[0]] = row[1]
+	
+manfKeyFile.close()
+
+# Create UnitType Key Dictionary
+
+mamoKeyFile.close()
 
 # Iterate through each line in the original CSV
 for row in ebsReader:
@@ -62,7 +75,7 @@ for row in ebsReader:
 		continue
 	
 	# Dictionary look up for Manf Code (row[5])
-	newManf = manKeyDict.get(row[5], 'Boobs')
+	newManf = manKeyDict.get(row[5], 'NA')
 	
 	# NA replacement
 	for i in range(len(row)):
