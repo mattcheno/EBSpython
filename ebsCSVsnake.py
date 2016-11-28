@@ -19,12 +19,15 @@
 
 # --- Declarations ------------------------------------------------------------
 import csv, ctypes, sys, os, re #, math, random #commented modules not needed
-ebsFile = open('ebsCSVData.csv')
+ebsFile = open('ebsCSVData.csv')     # Input file
 ebsReader = csv.reader(ebsFile)
-exFile = open('exceptions.csv', 'w', newline='')
+exFile = open('exceptions.csv', 'w', newline='')     # exceptions file
 exWriter = csv.writer(exFile)
-outputFile = open('output.csv', 'w', newline='')
+outputFile = open('output.csv', 'w', newline='')     # output file
 outputWriter = csv.writer(outputFile)
+manfKeyFile = open('Key_ManfCodes.csv')     # Key File to fix Manufacturers
+manfKeyReader = csv.reader(manfKeyFile)
+manKeyDict = {}
 def mBox(title, text, style): # Message Box Function
     ctypes.windll.user32.MessageBoxW(0, text, title, style)
 j = 0
@@ -33,6 +36,10 @@ nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 
 
 # --- Logic -------------------------------------------------------------------
+
+# Create Manufacturers Key Dictionary
+for row in manfKeyReader:
+	manKeyDict[row[0]] = row[1]
 
 # Iterate through each line in the original CSV
 for row in ebsReader:
@@ -51,7 +58,10 @@ for row in ebsReader:
 		row[14]=row[14].split()[0]
 	except IndexError:
 		continue
-
+	
+	# Dictionary look up for Manf Code (row[5])
+	newManf = manKeyDict.get(row[5], 'NA')
+	
 	# NA replacement
 	for i in range(len(row)):
 		if row[i] == '': row[i] = 'NA'
@@ -62,11 +72,16 @@ for row in ebsReader:
 		row.append('ModelCode contains NA value')
 		exWriter.writerow(row)
 		continue
+	elif newManf == 'NA':     # Manf Code isn't in Key File
+		row.append('Manufacturer not found in Key File')
+		exWriter.writerow(row)
+		continue
 	else:
+		row[5] = newManf
 		outputWriter.writerow(row)
 		j = j + 1
 	
-#end of first for loop
+#end of for loop
 
 mess='Complete: '+str(100*j/k)+'%\nJ= '+str(j)+'\nK= '+str(k)+' /3,003,715'
 # --- Close Files -------------------------------------------------------------
