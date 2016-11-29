@@ -9,4 +9,6 @@ with open("Key_MakeModels.csv", 'r') as data_file:
 
         new_data_dict[row["Make"]] = item
 
-print(new_data_dict)
+for k, v in new_data_dict.items():
+    for x, y in v.items():
+        print('MKey: ' + k + ' mKey: ' + x + ' Val: ' + y )#<------

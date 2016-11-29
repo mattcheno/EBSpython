@@ -26,8 +26,6 @@ exFile = open('exceptions.csv', 'w', newline='')     # exceptions file
 exWriter = csv.writer(exFile)
 outputFile = open('output.csv', 'w', newline='')     # output file
 outputWriter = csv.writer(outputFile)
-manfKeyFile = open('Key_ManfCodes.csv')     # Key File to fix Manufacturers
-manfKeyReader = csv.reader(manfKeyFile)
 manKeyDict = {}
 mamoKeyDict = {}
 def mBox(title, text, style): # Message Box Function
@@ -40,13 +38,10 @@ nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 # --- Logic -------------------------------------------------------------------
 
 # Create Manufacturers Key Dictionary
-for row in manfKeyReader:
-	if mamoKeyReader.line_num == 1:
-		continue
-	else:
-		manKeyDict[row[0]] = row[1]
-	
-manfKeyFile.close()
+with open("Key_ManfCodes.csv", 'r') as data_file:
+    data = csv.DictReader(data_file, delimiter = ",")
+    for row in data:
+        manKeyDict[row["Code"]] = row["Name"]
 
 # Create UnitType Key Dictionary
 with open("Key_MakeModels.csv", 'r') as data_file:     #Make/Model Key File
