@@ -29,8 +29,6 @@ outputWriter = csv.writer(outputFile)
 manfKeyFile = open('Key_ManfCodes.csv')     # Key File to fix Manufacturers
 manfKeyReader = csv.reader(manfKeyFile)
 manKeyDict = {}
-mamoKeyFile = open('Key_MakeModels.csv')     #Key File for Makes and Models
-mamoKeyReader = csv.reader(mamoKeyFile)
 mamoKeyDict = {}
 def mBox(title, text, style): # Message Box Function
     ctypes.windll.user32.MessageBoxW(0, text, title, style)
@@ -51,9 +49,14 @@ for row in manfKeyReader:
 manfKeyFile.close()
 
 # Create UnitType Key Dictionary
+with open("Key_MakeModels.csv", 'r') as data_file:     #Make/Model Key File
+	data = csv.DictReader(data_file, delimiter = ",")
+	for row in data:
+		item = mamoKeyDict.get(row["Make"], dict())
+		item[row["Model"]] = row["UnitType"]
+		mamoKeyDict[row["Make"]] = item
 
-mamoKeyFile.close()
-
+		
 # Iterate through each line in the original CSV
 for row in ebsReader:
 	k = ebsReader.line_num
