@@ -19,12 +19,15 @@
 
 # --- Declarations ------------------------------------------------------------
 import csv, ctypes, sys, os, re #, math, random #commented modules not needed
-ebsFile = open('ebsCSVData.csv')
+#ebsFile = open('ebsCSVData.csv')     # Input file
+ebsFile = open('sample.csv')
 ebsReader = csv.reader(ebsFile)
-exFile = open('exceptions.csv', 'w', newline='')
+exFile = open('exceptions.csv', 'w', newline='')     # exceptions file
 exWriter = csv.writer(exFile)
-outputFile = open('output.csv', 'w', newline='')
+outputFile = open('output.csv', 'w', newline='')     # output file
 outputWriter = csv.writer(outputFile)
+manKeyDict = {}
+mamoKeyDict = {}
 def mBox(title, text, style): # Message Box Function
     ctypes.windll.user32.MessageBoxW(0, text, title, style)
 j = 0
@@ -34,6 +37,21 @@ nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 
 # --- Logic -------------------------------------------------------------------
 
+# Create Manufacturers Key Dictionary
+with open("Key_ManfCodes.csv", 'r') as data_file:
+    data = csv.DictReader(data_file, delimiter = ",")
+    for row in data:
+        manKeyDict[row["Code"]] = row["Name"]
+
+# Create UnitType Key Dictionary
+with open("Key_MakeModels.csv", 'r') as data_file:     #Make/Model Key File
+	data = csv.DictReader(data_file, delimiter = ",")
+	for row in data:
+		item = mamoKeyDict.get(row["Make"], dict())
+		item[row["Model"]] = row["UnitType"]
+		mamoKeyDict[row["Make"]] = item
+
+		
 # Iterate through each line in the original CSV
 for row in ebsReader:
 	k = ebsReader.line_num
@@ -41,8 +59,10 @@ for row in ebsReader:
 	# Add Key Field
 	if ebsReader.line_num == 1:
 		row.insert(0, 'Key')
+		outputWriter.writerow(row)
 		row.append('NOTES')
 		exWriter.writerow(row)
+		continue
 	else:
 		row.insert(0, ebsReader.line_num - 1)
 
@@ -51,7 +71,10 @@ for row in ebsReader:
 		row[14]=row[14].split()[0]
 	except IndexError:
 		continue
-
+	
+	# Dictionary look up for Manf Code (row[5])
+	newManf = manKeyDict.get(row[5], 'NA')
+	
 	# NA replacement
 	for i in range(len(row)):
 		if row[i] == '': row[i] = 'NA'
@@ -62,11 +85,16 @@ for row in ebsReader:
 		row.append('ModelCode contains NA value')
 		exWriter.writerow(row)
 		continue
+	elif newManf == 'NA':     # Manf Code isn't in Key File
+		row.append('Manufacturer not found in Key File')
+		exWriter.writerow(row)
+		continue
 	else:
+		row[5] = newManf
 		outputWriter.writerow(row)
 		j = j + 1
 	
-#end of first for loop
+#end of for loop
 
 mess='Complete: '+str(100*j/k)+'%\nJ= '+str(j)+'\nK= '+str(k)+' /3,003,715'
 # --- Close Files -------------------------------------------------------------
