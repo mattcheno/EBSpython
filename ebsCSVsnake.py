@@ -76,6 +76,10 @@ for row in ebsReader:
 	newManf = manKeyDict.get(row[5], 'NA')
 	
 	# Dictionary look up for UnitType
+	makeDict = mamoKeyDict.get(newManf, 'ERR01')
+	if type(makeDict) is dict:
+		makeDict.get(row[6], 'ERR02') #row[6] is 'Model'
+		#<---------------
 	
 	# NA replacement
 	for i in range(len(row)):
