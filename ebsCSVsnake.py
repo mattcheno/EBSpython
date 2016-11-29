@@ -34,6 +34,10 @@ def mBox(title, text, style): # Message Box Function
     ctypes.windll.user32.MessageBoxW(0, text, title, style)
 j = 0
 k = 0
+m = 0
+x = 0
+y = 0
+z = 0
 nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 
 
@@ -59,9 +63,10 @@ for row in ebsReader:
 	k = ebsReader.line_num
 
 	# Percentage Status Update
-	if k % 30030 == 0:    # 1% should be 30,030
+	if k % 300371 == 0:    # 1% should be 30,030
 		tDur = round(time.time() - tStart)
-		print(str(k) + ' rows in ' + str(tDur) + ' seconds')
+		m = m + 1
+		print(str(k) + ' rows in ' + str(tDur) + ' seconds (' + str(m) + '0%)')
 	
 	# Add Key Field
 	if ebsReader.line_num == 1:
@@ -99,14 +104,17 @@ for row in ebsReader:
 		continue
 	elif newManf == 'NA':     # Manf Code isn't in Key File
 		row.append('Manufacturer not found in ManfCode Key File')
+		x = x + 1
 		exWriter.writerow(row)
 		continue
 	elif type(makeDict) is str:
 		row.append('Manufacturer not found in Make/Model Key File')
+		y = y + 1
 		exWriter.writerow(row)
 		continue
 	elif uType == "NA":
 		row.append('Model not found in Make/Model Key File')
+		z = z + 1
 		exWriter.writerow(row)
 		continue
 	else:
@@ -117,12 +125,20 @@ for row in ebsReader:
 	
 #end of for loop
 
-mess='Complete: '+str(100*j/k)+'%\nJ= '+str(j)+'\nK= '+str(k)+' /3,003,715'
+runStats = ('Complete: ' + str(100*j/k) +
+	'%\nJ= ' + str(j) +
+	'\nK= ' + str(k) + ' /3,003,715\n' +
+	str(x) + ' :: Manufacturer not found in ManfCode Key File\n' +
+	str(y) + ' :: Manufacturer not found in Make/Model Key File\n' +
+	str(z) + ' :: Model not found in Make/Model Key File\n' +
+	str(round(time.time() - tStart)) + ' Total Seconds Runtime')
+	
 # --- Close Files -------------------------------------------------------------
 ebsFile.close()
 outputFile.close()
 exFile.close()
-mBox('DONE',mess, 1)
+#mBox('DONE',mess, 1)
+print(mess)
 
 # === FOOTNOTES ===============================================================
 # === END OF CODE =============================================================
