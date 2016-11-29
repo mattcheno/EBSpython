@@ -128,10 +128,13 @@ for row in ebsReader:
 runStats = ('Complete: ' + str(100*j/k) +
 	'%\nJ= ' + str(j) +
 	'\nK= ' + str(k) + ' /3,003,715\n' +
-	str(x) + ' :: Manufacturer not found in ManfCode Key File\n' +
-	str(y) + ' :: Manufacturer not found in Make/Model Key File\n' +
-	str(z) + ' :: Model not found in Make/Model Key File\n' +
-	str(round(time.time() - tStart)) + ' Total Seconds Runtime')
+	str(x) + ' (' + str(round(x/k)) +
+	'%) :: Manufacturer not found in ManfCode Key File\n' +
+	str(y) + ' (' + str(round(y/k)) +
+	'%) :: Manufacturer not found in Make/Model Key File\n' +
+	str(z) + ' (' + str(round(z/k)) +
+	'%) :: Model not found in Make/Model Key File\n' +
+	str(round(time.time() - tStart, 4 )) + ' Total Seconds Runtime')
 	
 # --- Close Files -------------------------------------------------------------
 ebsFile.close()
