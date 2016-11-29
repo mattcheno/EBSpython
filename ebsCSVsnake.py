@@ -18,9 +18,11 @@
 # 3. Close Files
 
 # --- Declarations ------------------------------------------------------------
+import time
+tStart = time.time()
 import csv, ctypes, sys, os, re #, math, random #commented modules not needed
-#ebsFile = open('ebsCSVData.csv')     # Input file
-ebsFile = open('sample.csv')
+ebsFile = open('ebsCSVData.csv')     # Input file
+#ebsFile = open('sample.csv')         # Sample file
 ebsReader = csv.reader(ebsFile)
 exFile = open('exceptions.csv', 'w', newline='')     # exceptions file
 exWriter = csv.writer(exFile)
@@ -56,6 +58,11 @@ with open("Key_MakeModels.csv", 'r') as data_file:     #Make/Model Key File
 for row in ebsReader:
 	k = ebsReader.line_num
 
+	# Percentage Status Update
+	if k % 30030 == 0:    # 1% should be 30,030
+		tDur = round(time.time() - tStart)
+		print(str(k) + ' rows in ' + str(tDur) + ' seconds')
+	
 	# Add Key Field
 	if ebsReader.line_num == 1:
 		row.insert(0, 'Key')
@@ -78,8 +85,7 @@ for row in ebsReader:
 	# Dictionary look up for UnitType
 	makeDict = mamoKeyDict.get(newManf, 'ERR01')
 	if type(makeDict) is dict:
-		makeDict.get(row[6], 'ERR02') #row[6] is 'Model'
-		#<---------------
+		uType = makeDict.get(row[6], 'NA') #row[6] is 'Model'
 	
 	# NA replacement
 	for i in range(len(row)):
@@ -92,11 +98,20 @@ for row in ebsReader:
 		exWriter.writerow(row)
 		continue
 	elif newManf == 'NA':     # Manf Code isn't in Key File
-		row.append('Manufacturer not found in Key File')
+		row.append('Manufacturer not found in ManfCode Key File')
+		exWriter.writerow(row)
+		continue
+	elif type(makeDict) is str:
+		row.append('Manufacturer not found in Make/Model Key File')
+		exWriter.writerow(row)
+		continue
+	elif uType == "NA":
+		row.append('Model not found in Make/Model Key File')
 		exWriter.writerow(row)
 		continue
 	else:
 		row[5] = newManf
+		row[16] = uType     # row[16] is 'Class'
 		outputWriter.writerow(row)
 		j = j + 1
 	
