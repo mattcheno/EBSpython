@@ -137,8 +137,8 @@ runStats = ('Complete: ' + str(100*j/k) +
 ebsFile.close()
 outputFile.close()
 exFile.close()
-#mBox('DONE',mess, 1)
-print(mess)
+#mBox('DONE',runStats, 1)
+print(runStats)
 
 # === FOOTNOTES ===============================================================
 # === END OF CODE =============================================================
