@@ -75,6 +75,8 @@ for row in ebsReader:
 	# Dictionary look up for Manf Code (row[5])
 	newManf = manKeyDict.get(row[5], 'NA')
 	
+	# Dictionary look up for UnitType
+	
 	# NA replacement
 	for i in range(len(row)):
 		if row[i] == '': row[i] = 'NA'
