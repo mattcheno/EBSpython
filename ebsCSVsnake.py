@@ -78,6 +78,11 @@ for row in ebsReader:
 	else:
 		row.insert(0, ebsReader.line_num - 1)
 
+	# NA replacement
+	for i in range(len(row)):
+		if row[i] == '': row[i] = 'NA'
+		row[i] = nullRgX.sub('NA', str(row[i]))
+
 	# Strip Time stamp from OrderDate field (row[14])
 	try:
 		row[14]=row[14].split()[0]
@@ -92,11 +97,6 @@ for row in ebsReader:
 	if type(makeDict) is dict:
 		uType = makeDict.get(row[6], 'NA') #row[6] is 'Model'
 	
-	# NA replacement
-	for i in range(len(row)):
-		if row[i] == '': row[i] = 'NA'
-		row[i] = nullRgX.sub('NA', str(row[i]))
-
 	# Writes row to output if model code isn't null
 	if row[6] == 'NA':     # ModelCode (row[6]) for NA values
 		row.append('ModelCode contains NA value')
