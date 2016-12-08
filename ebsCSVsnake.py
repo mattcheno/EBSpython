@@ -15,6 +15,14 @@
 # --- Outline -----------------------------------------------------------------
 # 1. Declarations
 # 2. Logic
+#  . - Assign Index value
+#  . - Provide uniform Null-Value (use RegEx)
+#  . - Strip Time stamp from OrderDate field
+#  . - <<<<
+#  . - Retrofit "weak" Meter Field values
+#  . - Except-report observations with null value in ModelCode Field
+#  . - Except-report observations with zero values in Meter Field
+#  . - Provide a report with exceptions statistics to a text file
 # 3. Close Files
 
 # --- Declarations ------------------------------------------------------------
