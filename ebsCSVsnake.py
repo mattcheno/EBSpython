@@ -135,6 +135,11 @@ for row in ebsReader:
 	
 #end of for loop
 
+	
+#--------------------------------------------------------------Close Files-----
+ebsFile.close()
+outputFile.close()
+exFile.close()
 runStats = ('Complete: ' + str(round(100 * j / k, 4)) +
 	'%\nJ= ' + str(j) +
 	'\nK= ' + str(k) + ' /3,003,715\n' +
@@ -145,12 +150,10 @@ runStats = ('Complete: ' + str(round(100 * j / k, 4)) +
 	str(e3) + ' (' + str(round(e3 / k)) +
 	'%) :: Model not found in Key File\n' +
 	str(round(time.time() - tStart, 4 )) + ' Total Seconds Runtime')
-	
-#--------------------------------------------------------------Close Files-----
-ebsFile.close()
-outputFile.close()
-exFile.close()
 #mBox('DONE',runStats, 1)
+repFile = open('sqlReport.txt', 'w')
+repFile.write(runStats)
+repFile.close()
 print(runStats)
 
 #================================================================FOOTNOTES=====
