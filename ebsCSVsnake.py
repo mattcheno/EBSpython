@@ -38,6 +38,7 @@ e1 = 0  #counter, 'ModelCode contains NA value'
 e2 = 0  #counter, 'Manufacturer not found in Key File'
 e3 = 0  #counter, 'Model not found in Key File'
 nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
+dashRgX = re.compile(r'-|/') #Dashes or Slashes RegEx
 
 #mBox('Go', 'Go', 1)
 #--------------------------------------------------------------------Logic-----
@@ -83,6 +84,9 @@ for row in ebsReader:
 		row[14]=row[14].split()[0]
 	except IndexError:
 		continue
+	
+	# Strip Dashes from ModelCode (row[6])
+	row[6] = dashRgX.sub('', row[6])
 	
 	# Dictionary look up for Manf Code (row[5])
 	newManf = manfKeyDict.get(row[5], 'NA')
