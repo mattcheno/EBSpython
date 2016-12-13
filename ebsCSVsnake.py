@@ -46,10 +46,10 @@ def mBox(title, text, style): # Message Box Function
     ctypes.windll.user32.MessageBoxW(0, text, title, style)
 j = 0  #counter, successful writes
 k = 0  #counter, total iterations
-m = 0
-x = 0
-y = 0
-z = 0
+m = 0  #counter, percentage status
+e1 = 0  #counter, 'ModelCode contains NA value'
+e2 = 0  #counter, 'Manufacturer not found in Key File'
+e3 = 0  #counter, 'Model not found in Key File'
 nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 
 
@@ -99,7 +99,7 @@ for row in ebsReader:
 		continue
 	
 	# Dictionary look up for Manf Code (row[5])
-	newManf = unitKeyDict.get(row[5], 'NA')
+	newManf = manfKeyDict.get(row[5], 'NA')
 	
 	# Dictionary look up for UnitType
 	makeDict = unitKeyDict.get(row[5], 'ERR01')  #-----------Footnote 001
@@ -109,21 +109,22 @@ for row in ebsReader:
 	# Writes row to output if model code isn't null
 	if row[6] == 'NA':     # ModelCode (row[6]) for NA values
 		row.append('ModelCode contains NA value')
+		e1 = e1 + 1
 		exWriter.writerow(row)
 		continue
 	elif newManf == 'NA':     # Manf Code isn't in Key File
-		row.append('Manufacturer not found in ManfCode Key File')
-		x = x + 1
+		row.append('Manufacturer not found in Key File')
+		e2 = e2 + 1
 		exWriter.writerow(row)
 		continue
-	elif type(makeDict) is str:
-		row.append('Manufacturer not found in Make/Model Key File')
-		y = y + 1
-		exWriter.writerow(row)
-		continue
+#	elif type(makeDict) is str:
+#		row.append('Manufacturer not found in Make/Model Key File')
+#		#y = y + 1
+#		exWriter.writerow(row)
+#		continue
 	elif uType == "NA":
-		row.append('Model not found in Make/Model Key File')
-		z = z + 1
+		row.append('Model not found in Key File')
+		e3 = e3 + 1
 		exWriter.writerow(row)
 		continue
 	else:
@@ -134,15 +135,15 @@ for row in ebsReader:
 	
 #end of for loop
 
-runStats = ('Complete: ' + str(100*j/k) +
+runStats = ('Complete: ' + str(round(100 * j / k, 4)) +
 	'%\nJ= ' + str(j) +
 	'\nK= ' + str(k) + ' /3,003,715\n' +
-	str(x) + ' (' + str(round(x/k)) +
-	'%) :: Manufacturer not found in ManfCode Key File\n' +
-	str(y) + ' (' + str(round(y/k)) +
-	'%) :: Manufacturer not found in Make/Model Key File\n' +
-	str(z) + ' (' + str(round(z/k)) +
-	'%) :: Model not found in Make/Model Key File\n' +
+	str(e1) + ' (' + str(round(e1 / k)) +
+	'%) :: ModelCode contains NA value\n' +
+	str(e2) + ' (' + str(round(e2 / k)) +
+	'%) :: Manufacturer not found in Key File\n' +
+	str(e3) + ' (' + str(round(e3 / k)) +
+	'%) :: Model not found in Key File\n' +
 	str(round(time.time() - tStart, 4 )) + ' Total Seconds Runtime')
 	
 #--------------------------------------------------------------Close Files-----
