@@ -12,19 +12,6 @@
 #  Note: There are 3,003,714 observations in the first pass
 
 
-#------------------------------------------------------------------Outline-----
-# 1. Declarations
-# 2. Logic
-#  . - Assign Index value
-#  . - Provide uniform Null-Value (use RegEx)
-#  . - Strip Time stamp from OrderDate field
-#  . - <<
-#  . - Retrofit "weak" Meter Field values
-#  . - Except-report observations with null value in ModelCode Field
-#  . - Except-report observations with zero values in Meter Field
-#  . - Provide a report with exceptions statistics to a text file
-# 3. Close Files
-
 #-------------------------------------------------------------Declarations-----
 import time   #Time Functions for run-time tracking
 tStart = time.time()
@@ -52,16 +39,15 @@ e2 = 0  #counter, 'Manufacturer not found in Key File'
 e3 = 0  #counter, 'Model not found in Key File'
 nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 
-
+#mBox('Go', 'Go', 1)
 #--------------------------------------------------------------------Logic-----
 
-# Create Key Dictionaries
+# Create Unit Type Dictionary
 with open("UberKey.csv", 'r') as data_file:     #UberKey File
 	data = csv.DictReader(data_file, delimiter = ",")
 	for row in data:
 		#Manufacturer Dictionary
 		manfKeyDict[row["Mfg"]] = row["Manufacturer"]
-		#-------Not sure the above will work in the same with statement------
 		#UnitType Dictionary
 		item = unitKeyDict.get(row["Mfg"], dict())
 		item[row["Model"]] = row["UnitType"]
@@ -117,11 +103,6 @@ for row in ebsReader:
 		e2 = e2 + 1
 		exWriter.writerow(row)
 		continue
-#	elif type(makeDict) is str:
-#		row.append('Manufacturer not found in Make/Model Key File')
-#		#y = y + 1
-#		exWriter.writerow(row)
-#		continue
 	elif uType == "NA":
 		row.append('Model not found in Key File')
 		e3 = e3 + 1
@@ -143,15 +124,15 @@ exFile.close()
 runStats = ('Complete: ' + str(round(100 * j / k, 4)) +
 	'%\nJ= ' + str(j) +
 	'\nK= ' + str(k) + ' /3,003,715\n' +
-	str(e1) + ' (' + str(round(e1 / k)) +
+	str(e1) + ' (' + str(round(100 * e1 / k, 4)) +
 	'%) :: ModelCode contains NA value\n' +
-	str(e2) + ' (' + str(round(e2 / k)) +
+	str(e2) + ' (' + str(round(100 * e2 / k, 4)) +
 	'%) :: Manufacturer not found in Key File\n' +
-	str(e3) + ' (' + str(round(e3 / k)) +
+	str(e3) + ' (' + str(round(100 * e3 / k, 4)) +
 	'%) :: Model not found in Key File\n' +
 	str(round(time.time() - tStart, 4 )) + ' Total Seconds Runtime')
 #mBox('DONE',runStats, 1)
-repFile = open('sqlReport.txt', 'w')
+repFile = open('csvReport.txt', 'w')
 repFile.write(runStats)
 repFile.close()
 print(runStats)
