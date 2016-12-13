@@ -59,9 +59,13 @@ nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 with open("UberKey.csv", 'r') as data_file:     #UberKey File
 	data = csv.DictReader(data_file, delimiter = ",")
 	for row in data:
+		#Manufacturer Dictionary
+		manfKeyDict[row["Mfg"]] = row["Manufacturer"]
+		#-------Not sure the above will work in the same with statement------
+		#UnitType Dictionary
 		item = unitKeyDict.get(row["Mfg"], dict())
 		item[row["Model"]] = row["UnitType"]
-		mamounitKeyDict[row["Mfg"]] = item
+		unitKeyDict[row["Mfg"]] = item
 		
 # Iterate through each line in the original CSV
 for row in ebsReader:
