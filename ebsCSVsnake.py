@@ -1,6 +1,6 @@
 #! python3
 
-# === BOILERPLATE =============================================================
+#==============================================================BOILERPLATE=====
 #
 #  EBS CSV pre-conditioner
 #  Matthew Chenoweth
@@ -12,23 +12,14 @@
 #  Note: There are 3,003,714 observations in the first pass
 
 
-# --- Outline -----------------------------------------------------------------
-# 1. Declarations
-# 2. Logic
-#  . - Assign Index value
-#  . - Provide uniform Null-Value (use RegEx)
-#  . - Strip Time stamp from OrderDate field
-#  . - <<<<
-#  . - Retrofit "weak" Meter Field values
-#  . - Except-report observations with null value in ModelCode Field
-#  . - Except-report observations with zero values in Meter Field
-#  . - Provide a report with exceptions statistics to a text file
-# 3. Close Files
-
-# --- Declarations ------------------------------------------------------------
-import time
+#-------------------------------------------------------------Declarations-----
+import time   #Time Functions for run-time tracking
 tStart = time.time()
-import csv, ctypes, sys, os, re #, math, random #commented modules not needed
+import csv  #Read/Write CSV Files
+import ctypes   #Message Box Functionality
+import sys   #
+import os   #Functions for working with different OSes
+import re   #RegEx!! 
 ebsFile = open('ebsCSVData.csv')     # Input file
 #ebsFile = open('sample.csv')         # Sample file
 ebsReader = csv.reader(ebsFile)
@@ -36,41 +27,37 @@ exFile = open('exceptions.csv', 'w', newline='')     # exceptions file
 exWriter = csv.writer(exFile)
 outputFile = open('output.csv', 'w', newline='')     # output file
 outputWriter = csv.writer(outputFile)
-manKeyDict = {}
-mamoKeyDict = {}
+unitKeyDict = {}  #Dictionary for Unit Type Lookup
+manfKeyDict = {}  #Dictionary for Manufacturer Lookup
 def mBox(title, text, style): # Message Box Function
     ctypes.windll.user32.MessageBoxW(0, text, title, style)
-j = 0
-k = 0
-m = 0
-x = 0
-y = 0
-z = 0
+j = 0  #counter, successful writes
+k = 0  #counter, total iterations
+m = 0  #counter, percentage status
+e1 = 0  #counter, 'ModelCode contains NA value'
+e2 = 0  #counter, 'Manufacturer not found in Key File'
+e3 = 0  #counter, 'Model not found in Key File'
 nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 
+#mBox('Go', 'Go', 1)
+#--------------------------------------------------------------------Logic-----
 
-# --- Logic -------------------------------------------------------------------
-
-# Create Manufacturers Key Dictionary
-with open("Key_ManfCodes.csv", 'r') as data_file:
-    data = csv.DictReader(data_file, delimiter = ",")
-    for row in data:
-        manKeyDict[row["Code"]] = row["Name"]
-
-# Create UnitType Key Dictionary
-with open("Key_MakeModels.csv", 'r') as data_file:     #Make/Model Key File
+# Create Unit Type Dictionary
+with open("UberKey.csv", 'r') as data_file:     #UberKey File
 	data = csv.DictReader(data_file, delimiter = ",")
 	for row in data:
-		item = mamoKeyDict.get(row["Make"], dict())
+		#Manufacturer Dictionary
+		manfKeyDict[row["Mfg"]] = row["Manufacturer"]
+		#UnitType Dictionary
+		item = unitKeyDict.get(row["Mfg"], dict())
 		item[row["Model"]] = row["UnitType"]
-		mamoKeyDict[row["Make"]] = item
-
+		unitKeyDict[row["Mfg"]] = item
 		
 # Iterate through each line in the original CSV
 for row in ebsReader:
 	k = ebsReader.line_num
 
-	# Percentage Status Update
+	# Print percentage Status Update
 	if k % 300371 == 0:    # 1% should be 30,030
 		tDur = round(time.time() - tStart)
 		m = m + 1
@@ -98,31 +85,27 @@ for row in ebsReader:
 		continue
 	
 	# Dictionary look up for Manf Code (row[5])
-	newManf = manKeyDict.get(row[5], 'NA')
+	newManf = manfKeyDict.get(row[5], 'NA')
 	
 	# Dictionary look up for UnitType
-	makeDict = mamoKeyDict.get(newManf, 'ERR01')
+	makeDict = unitKeyDict.get(row[5], 'ERR01')  #-----------Footnote 001
 	if type(makeDict) is dict:
 		uType = makeDict.get(row[6], 'NA') #row[6] is 'Model'
 	
 	# Writes row to output if model code isn't null
 	if row[6] == 'NA':     # ModelCode (row[6]) for NA values
 		row.append('ModelCode contains NA value')
+		e1 = e1 + 1
 		exWriter.writerow(row)
 		continue
 	elif newManf == 'NA':     # Manf Code isn't in Key File
-		row.append('Manufacturer not found in ManfCode Key File')
-		x = x + 1
-		exWriter.writerow(row)
-		continue
-	elif type(makeDict) is str:
-		row.append('Manufacturer not found in Make/Model Key File')
-		y = y + 1
+		row.append('Manufacturer not found in Key File')
+		e2 = e2 + 1
 		exWriter.writerow(row)
 		continue
 	elif uType == "NA":
-		row.append('Model not found in Make/Model Key File')
-		z = z + 1
+		row.append('Model not found in Key File')
+		e3 = e3 + 1
 		exWriter.writerow(row)
 		continue
 	else:
@@ -133,23 +116,30 @@ for row in ebsReader:
 	
 #end of for loop
 
-runStats = ('Complete: ' + str(100*j/k) +
-	'%\nJ= ' + str(j) +
-	'\nK= ' + str(k) + ' /3,003,715\n' +
-	str(x) + ' (' + str(round(x/k)) +
-	'%) :: Manufacturer not found in ManfCode Key File\n' +
-	str(y) + ' (' + str(round(y/k)) +
-	'%) :: Manufacturer not found in Make/Model Key File\n' +
-	str(z) + ' (' + str(round(z/k)) +
-	'%) :: Model not found in Make/Model Key File\n' +
-	str(round(time.time() - tStart, 4 )) + ' Total Seconds Runtime')
 	
-# --- Close Files -------------------------------------------------------------
+#--------------------------------------------------------------Close Files-----
 ebsFile.close()
 outputFile.close()
 exFile.close()
+runStats = ('Complete: ' + str(round(100 * j / k, 4)) +
+	'%\nJ= ' + str(j) +
+	'\nK= ' + str(k) + ' /3,003,715\n' +
+	str(e1) + ' (' + str(round(100 * e1 / k, 4)) +
+	'%) :: ModelCode contains NA value\n' +
+	str(e2) + ' (' + str(round(100 * e2 / k, 4)) +
+	'%) :: Manufacturer not found in Key File\n' +
+	str(e3) + ' (' + str(round(100 * e3 / k, 4)) +
+	'%) :: Model not found in Key File\n' +
+	str(round(time.time() - tStart, 4 )) + ' Total Seconds Runtime')
 #mBox('DONE',runStats, 1)
+repFile = open('csvReport.txt', 'w')
+repFile.write(runStats)
+repFile.close()
 print(runStats)
 
-# === FOOTNOTES ===============================================================
-# === END OF CODE =============================================================
+#================================================================FOOTNOTES=====
+#    Note 001
+# Look up the three-digit MFG code (row[5]) from the observation in the UberKey
+# dictionary and assign the nested dictionary of models/unit-types to makeDict
+# variable. Assign "ERR01" code if MFG code not found.
+#==============================================================END OF CODE=====
