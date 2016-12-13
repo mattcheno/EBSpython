@@ -116,10 +116,11 @@ for row in ebsReader:
 		continue
 	else:
 		try:  #----------------------------------------------Footnote 002
-			if row[9] < 1: z = z + 1    # row[9] is Meter reading
-		except TypeError
+			if int(row[9]) < 1: z = z + 1    # row[9] is Meter reading
+		except ValueError:
 			row.append('Meter is not numeric')
 			e4 = e4 + 1
+			exWriter.writerow(row)
 			continue
 		row[5] = newManf
 		row[16] = uType     # row[16] is 'Class'
@@ -144,9 +145,9 @@ runStats = ('Complete: ' + str(round(100 * j / k, 4)) +
 	'%) :: Model not found in Key File\n' +
 	str(e4) + ' (' + str(round(100 * e4 / k, 4)) +
 	'%) :: Meter not numeric\n==========\n' +
-	str(z) + ' [' + str(round(100 * z / j, 4)) +
-	'% of Complete] :: Zero Meter Value\n==========\n' +
-	str(round(time.time() - tStart, 4 )) + ' Total Seconds Runtime')
+	str(z) + ' (' + str(round(100 * z / j, 4)) +
+	'% of Complete) :: Zero Meter Value\n==========\n' + 
+	str(round(time.time() - tStart, 2)) + ' Total Seconds Runtime')
 #mBox('DONE',runStats, 1)
 repFile = open('csvReport.txt', 'w')
 repFile.write(runStats)
