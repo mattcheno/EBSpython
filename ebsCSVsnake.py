@@ -37,6 +37,7 @@ m = 0  #counter, percentage status
 e1 = 0  #counter, 'ModelCode contains NA value'
 e2 = 0  #counter, 'Manufacturer not found in Key File'
 e3 = 0  #counter, 'Model not found in Key File'
+z = 0  #counter, number of zero Meter readings
 nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 dashRgX = re.compile(r'-|/') #Dashes or Slashes RegEx
 
@@ -117,6 +118,9 @@ for row in ebsReader:
 		row[16] = uType     # row[16] is 'Class'
 		outputWriter.writerow(row)
 		j = j + 1
+		if row[9] < 1:     # row[9] is Meter reading
+			z = z + 1
+		continue
 	
 #end of for loop
 
@@ -133,7 +137,9 @@ runStats = ('Complete: ' + str(round(100 * j / k, 4)) +
 	str(e2) + ' (' + str(round(100 * e2 / k, 4)) +
 	'%) :: Manufacturer not found in Key File\n' +
 	str(e3) + ' (' + str(round(100 * e3 / k, 4)) +
-	'%) :: Model not found in Key File\n' +
+	'%) :: Model not found in Key File\n==========\n' +
+	str(z) + ' [' + str(round(100 * z / j, 4)) +
+	'% of Complete] :: Zero Meter Value\n==========\n' +
 	str(round(time.time() - tStart, 4 )) + ' Total Seconds Runtime')
 #mBox('DONE',runStats, 1)
 repFile = open('csvReport.txt', 'w')
