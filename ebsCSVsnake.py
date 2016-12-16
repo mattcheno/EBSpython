@@ -29,6 +29,7 @@ outputFile = open('output.csv', 'w', newline='')     # output file
 outputWriter = csv.writer(outputFile)
 unitKeyDict = {}  #Dictionary for Unit Type Lookup
 manfKeyDict = {}  #Dictionary for Manufacturer Lookup
+moYrKeyDict = {}  #Dictionary for ModelYear
 def mBox(title, text, style): # Message Box Function
     ctypes.windll.user32.MessageBoxW(0, text, title, style)
 j = 0  #counter, successful writes
@@ -56,6 +57,9 @@ with open("UberKey.csv", 'r') as data_file:     #UberKey File
 		item[row["Model"]] = row["UnitType"]
 		unitKeyDict[row["Mfg"]] = item
 		#ModelYear Dictionary
+		myItem = moYrKeyDict.get(row["Mfg"], dict())
+		myItem[row["Model"]] = row["Year"]
+		moYrKeyDict[row["Mfg"]] = myItem
 		#<---------
 		
 # Iterate through each line in the original CSV
