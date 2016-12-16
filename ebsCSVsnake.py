@@ -65,7 +65,7 @@ with open("UberKey.csv", 'r') as data_file:     #UberKey File
 		myItem = moYrKeyDict.get(row["Mfg"], dict())
 		myItem[row["Model"]] = row["Year"]
 		moYrKeyDict[row["Mfg"]] = myItem
-		
+
 # Iterate through each line in the original CSV
 for row in ebsReader:
 	k = ebsReader.line_num
@@ -74,7 +74,7 @@ for row in ebsReader:
 	if k % 300371 == 0:    # 1% should be 30,030
 		tDur = round(time.time() - tStart)
 		m = m + 1
-		print(str(k) + ' rows in ' + str(tDur) + ' seconds (' + str(m) + '0%)')
+		print(str(k) + ' rows (' + str(m) + '0%) in ' + str(tDur) + ' seconds')
 	
 	# Add Key Field
 	if ebsReader.line_num == 1:
@@ -103,11 +103,15 @@ for row in ebsReader:
 	# Dictionary look up for Manf Code (row[5])
 	newManf = manfKeyDict.get(row[5], 'NA')
 	
-	# Dictionary look ups for UnitType and Model Year 
+	# Dictionary look up for UnitType
 	makeDict = unitKeyDict.get(row[5], 'ERR01')  #-----------Footnote 001
 	if type(makeDict) is dict:
 		uType = makeDict.get(row[6], 'NA') #row[6] is 'Model'
-		moYear = makeDict.get(row[15], 'NA') #row[15] is 'EquipYear'
+	
+	# Dictionary look up for Model Year
+	yearDict = moYrKeyDict.get(row[5], 'ERR02')
+	if type(yearDict) is dict:
+		moYear = yearDict.get(row[15], 'NA') #row[15] is 'EquipYear'
 	
 	# Writes row to output if model code isn't null
 	if row[6] == 'NA':     # ModelCode (row[6]) for NA values
