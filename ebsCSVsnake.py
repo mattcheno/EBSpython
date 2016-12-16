@@ -39,6 +39,7 @@ e1 = 0  #counter, 'ModelCode contains NA value'
 e2 = 0  #counter, 'Manufacturer not found in Key File'
 e3 = 0  #counter, 'Model not found in Key File'
 e4 = 0  #counter, 'Meter is not numeric'
+e5 = 0  #counter, 'Model Year not found in Key File'
 z = 0  #counter, number of zero Meter readings
 nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 dashRgX = re.compile(r'-|/') #Dashes or Slashes RegEx
@@ -60,7 +61,6 @@ with open("UberKey.csv", 'r') as data_file:     #UberKey File
 		myItem = moYrKeyDict.get(row["Mfg"], dict())
 		myItem[row["Model"]] = row["Year"]
 		moYrKeyDict[row["Mfg"]] = myItem
-		#<---------
 		
 # Iterate through each line in the original CSV
 for row in ebsReader:
@@ -99,10 +99,11 @@ for row in ebsReader:
 	# Dictionary look up for Manf Code (row[5])
 	newManf = manfKeyDict.get(row[5], 'NA')
 	
-	# Dictionary look up for UnitType
+	# Dictionary look ups for UnitType and Model Year 
 	makeDict = unitKeyDict.get(row[5], 'ERR01')  #-----------Footnote 001
 	if type(makeDict) is dict:
 		uType = makeDict.get(row[6], 'NA') #row[6] is 'Model'
+		moYear = makeDict.get(row[15], 'NA') #row[15] is 'EquipYear'
 	
 	# Writes row to output if model code isn't null
 	if row[6] == 'NA':     # ModelCode (row[6]) for NA values
@@ -120,6 +121,11 @@ for row in ebsReader:
 		e3 = e3 + 1
 		exWriter.writerow(row)
 		continue
+	elif moYear == "NA":
+		row.append('Model Year not found in Key File')
+		e5 = e5 + 1
+		exWriter.writerow(row)
+		continue
 	else:
 		try:  #----------------------------------------------Footnote 002
 			if int(row[9]) < 1: z = z + 1    # row[9] is Meter reading
@@ -129,6 +135,7 @@ for row in ebsReader:
 			exWriter.writerow(row)
 			continue
 		row[5] = newManf
+		row[15] = moYear     # row[15] is 'EquipYear'
 		row[16] = uType     # row[16] is 'Class'
 		outputWriter.writerow(row)
 		j = j + 1
@@ -150,7 +157,9 @@ runStats = ('Complete: ' + str(round(100 * j / k, 4)) +
 	str(e3) + ' (' + str(round(100 * e3 / k, 4)) +
 	'%) :: Model not found in Key File\n' +
 	str(e4) + ' (' + str(round(100 * e4 / k, 4)) +
-	'%) :: Meter not numeric\n==========\n' +
+	'%) :: Meter not numeric\n' +
+	str(e5) + ' (' + str(round(100 * e5 / k, 4)) +
+	'%) :: Model Year not found in Key File\n==========\n' +
 	str(z) + ' (' + str(round(100 * z / j, 4)) +
 	'% of Complete) :: Zero Meter Value\n==========\n' + 
 	str(round(time.time() - tStart, 2)) + ' Total Seconds Runtime')
