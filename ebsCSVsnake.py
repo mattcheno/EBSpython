@@ -43,6 +43,10 @@ e5 = 0  #counter, 'Model Year not found in Key File'
 z = 0  #counter, number of zero Meter readings
 nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 dashRgX = re.compile(r'-|/') #Dashes or Slashes RegEx
+def errRep(eN, eMess, tot):
+	erString = (srt(eN) + ' (' + str(round(100 * eN / tot, 4)) + '%) :: ' +
+	eMess + '\n')
+	return erString
 
 #mBox('Go', 'Go', 1)
 #--------------------------------------------------------------------Logic-----
@@ -150,19 +154,15 @@ exFile.close()
 runStats = ('Complete: ' + str(round(100 * j / k, 4)) +
 	'%\nJ= ' + str(j) +
 	'\nK= ' + str(k) + ' /3,003,715\n' +
-	str(e1) + ' (' + str(round(100 * e1 / k, 4)) +
-	'%) :: ModelCode contains NA value\n' +
-	str(e2) + ' (' + str(round(100 * e2 / k, 4)) +
-	'%) :: Manufacturer not found in Key File\n' +
-	str(e3) + ' (' + str(round(100 * e3 / k, 4)) +
-	'%) :: Model not found in Key File\n' +
-	str(e4) + ' (' + str(round(100 * e4 / k, 4)) +
-	'%) :: Meter not numeric\n' +
-	str(e5) + ' (' + str(round(100 * e5 / k, 4)) +
-	'%) :: Model Year not found in Key File\n==========\n' +
-	str(z) + ' (' + str(round(100 * z / j, 4)) +
-	'% of Complete) :: Zero Meter Value\n==========\n' + 
-	str(round(time.time() - tStart, 2)) + ' Total Seconds Runtime')
+	errRep(e1, 'ModelCode contains NA value', k) +
+	errRep(e2, 'Manufacturer not found in Key File', k) +
+	errRep(e3, 'Model not found in Key File', k) +
+	errRep(e4, 'Meter not numeric', k) +
+	errRep(e5, 'Model Year not found in Key File', k) + 
+	'----------\n' +
+	errRep(z, 'Meter Value Zero, Percent of Complete', j) + 
+	'==========\n' +
+	str(round(time.time(), 2)) + ' Total Seconds Runtime')
 #mBox('DONE',runStats, 1)
 repFile = open('csvReport.txt', 'w')
 repFile.write(runStats)
