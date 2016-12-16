@@ -55,6 +55,8 @@ with open("UberKey.csv", 'r') as data_file:     #UberKey File
 		item = unitKeyDict.get(row["Mfg"], dict())
 		item[row["Model"]] = row["UnitType"]
 		unitKeyDict[row["Mfg"]] = item
+		#ModelYear Dictionary
+		#<---------
 		
 # Iterate through each line in the original CSV
 for row in ebsReader:
