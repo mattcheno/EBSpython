@@ -44,8 +44,8 @@ z = 0  #counter, number of zero Meter readings
 nullRgX = re.compile(r'unk.*|(x){2,}|N/A', re.I) #Null-Value RegEx
 dashRgX = re.compile(r'-|/') #Dashes or Slashes RegEx
 def errRep(eN, eMess, tot):
-	erString = (srt(eN) + ' (' + str(round(100 * eN / tot, 4)) + '%) :: ' +
-	eMess + '\n')
+	erString = (str(eN) + ' (' + str(round(100 * eN / max(tot, 1), 4)) + 
+	'%) :: ' + eMess + '\n')
 	return erString
 
 #mBox('Go', 'Go', 1)
@@ -162,7 +162,7 @@ runStats = ('Complete: ' + str(round(100 * j / k, 4)) +
 	'----------\n' +
 	errRep(z, 'Meter Value Zero, Percent of Complete', j) + 
 	'==========\n' +
-	str(round(time.time(), 2)) + ' Total Seconds Runtime')
+	str(round(time.time() - tStart, 2)) + ' Total Seconds Runtime')
 #mBox('DONE',runStats, 1)
 repFile = open('csvReport.txt', 'w')
 repFile.write(runStats)
