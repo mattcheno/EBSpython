@@ -111,7 +111,7 @@ for row in ebsReader:
 	# Dictionary look up for Model Year
 	yearDict = moYrKeyDict.get(row[5], 'ERR02')
 	if type(yearDict) is dict:
-		moYear = yearDict.get(row[6], 'NA') #row[15] is 'EquipYear'
+		moYear = yearDict.get(row[6], 'NA') #row[6] is 'Model'
 	
 	# Writes row to output if model code isn't null
 	if row[6] == 'NA':     # ModelCode (row[6]) for NA values
@@ -146,7 +146,6 @@ for row in ebsReader:
 		row[15] = moYear     # row[15] is 'EquipYear'
 		row[16] = uType     # row[16] is 'Class'
 		outputWriter.writerow(row)
-		print(row)
 		j = j + 1
 	
 #end of for loop
