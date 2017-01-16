@@ -146,6 +146,7 @@ for row in ebsReader:
 		row[15] = moYear     # row[15] is 'EquipYear'
 		row[16] = uType     # row[16] is 'Class'
 		outputWriter.writerow(row)
+		print(row)
 		j = j + 1
 	
 #end of for loop
