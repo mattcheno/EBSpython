@@ -1,7 +1,8 @@
 nAss = {}
 import csv, pprint
 
-csvFile = open('ebsCSVData.csv')
+#csvFile = open('ebsCSVData.csv')
+csvFile = open('output.csv')
 csvReader = csv.reader(csvFile)
 outFile = open('NumberOfAssets.txt', 'w')
 
@@ -11,7 +12,7 @@ for row in csvReader:
         continue
     else:
         try:
-            wID = str(row[7])
+            wID = str(row[5]) + '|' + str(row[6])
             nAss.setdefault(wID, 0)
             nAss[wID] = nAss[wID] + 1
         except IndexError:
